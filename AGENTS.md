@@ -17,3 +17,6 @@
 
 ## PR instructions
 Title format: [<project_name>] <Title>
+
+## Feature-Sliced Design
+Используй идеологию Feature-Sliced Design при построении кода
