@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "description": "Node.js proxy server",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/app/server.js",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "ts-node-esm src/index.ts",
+    "start": "node dist/app/server.js",
+    "dev": "ts-node-esm src/app/server.ts",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write .",
     "test": "echo \"No tests specified\""
@@ -16,8 +16,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bullmq": "^5.54.3",
     "express": "^5.1.0",
+    "tough-cookie": "^5.1.2",
     "tslog": "^4.9.3"
   },
   "devDependencies": {
