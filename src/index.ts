@@ -1,5 +1,6 @@
 import express from 'express';
 import { Queue, Worker, QueueEvents, Job } from 'bullmq';
+import { CookieJar } from 'tough-cookie';
 import { Logger } from 'tslog';
 
 const logger = new Logger({ name: 'proxy-server' });
@@ -7,6 +8,7 @@ const PORT = Number(process.env.PORT) || 3003;
 const connection = { host: '127.0.0.1', port: 6379 };
 const requestQueue = new Queue('requests', { connection });
 const queueEvents = new QueueEvents('requests', { connection });
+const cookieJar = new CookieJar();
 
 const app = express();
 app.use(express.json());
@@ -50,14 +52,23 @@ new Worker(
     delete sanitizedHeaders['fingerprint'];
     delete sanitizedHeaders['ip'];
     delete sanitizedHeaders['x-forwarded-for'];
+    delete sanitizedHeaders['cookie'];
 
     sanitizedHeaders['host'] = new URL(target).host;
+    const jarCookie = await cookieJar.getCookieString(target);
+    if (jarCookie) {
+      sanitizedHeaders['cookie'] = jarCookie;
+    }
 
     const response = await fetch(target, {
       method,
       headers: sanitizedHeaders,
       body: ['GET', 'HEAD'].includes(method) ? undefined : JSON.stringify(body),
     });
+
+    for (const cookie of response.headers.getSetCookie()) {
+      await cookieJar.setCookie(cookie, target);
+    }
 
     const text = await response.text();
     return {
